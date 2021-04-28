@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.judy.common.security.mapper.MemberMapper">
+	
+	<resultMap type="org.judy.common.security.domain.AuthVO" id="authMap">
+		<result property="userid" column="mid" />
+		<result property="auth" column="auth" />
+	</resultMap>
+
+	<resultMap type="org.judy.common.security.domain.MemberVO" id="memberMap">
+		<id property="mid" column="mid" />
+		<result property="mpw" column="mpw" />
+		<result property="sno" column="mname" />
+		<collection property="authList" resultMap="authMap"></collection>
+	</resultMap>
+
+	<select id="read" resultMap="memberMap">
+		select tl.mid , mpw , mname , ta.auth from 
+		(select tm.mid mid , tm.mpw mpw , ts.sno mname from tbl_manager tm left join tbl_store ts on tm.mid = ts.mid where tm.mid = #{mid} and approval = 1
+		union all
+		select amid mid, ampw mpw, amname mname from tbl_admin where amid = #{mid}
+		union all
+		select adid mid, adpw mpw, '광고주' mname from tbl_adv where adid = #{mid} ) tl left join tbl_auth ta on tl.mid = ta.mid 
+		group by mid
+	</select>
+
+</mapper>
